@@ -1,0 +1,18 @@
+language: php
+php:
+  - "5.6"
+  - "7.0"
+  - "7.1"
+  - "7.2"
+  - "7.3"
+script: 
+    - sed -e "s#@YOUR_PARTNER_ID@#$PARTNER_ID#g" -e "s#@YOUR_ADMIN_SECRET@#$ADMIN_SECRET#g" -e "s#@SERVICE_URL@#https://www.kaltura.com#g" TestCode/config.template.ini > TestCode/config.ini 
+    - cd TestCode/ && php TestMain.php 
+notifications:
+  email:
+    recipients:
+      - moshe.maor@kaltura.com
+      - jess.portnoy@kaltura.com
+      - Jonathan.Kanarek@kaltura.com
+    on_success: change
+    on_failure: always
