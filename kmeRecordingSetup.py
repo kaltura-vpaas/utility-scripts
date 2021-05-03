@@ -1,9 +1,7 @@
 from KalturaClient import *
 from KalturaClient.Plugins.Core import *
 from KalturaClient.Plugins.Schedule import *
-from KalturaClient.exceptions import KalturaException
 from csv import reader
-from datetime import datetime
 import webbrowser
 
 # Populate these with appropriate values

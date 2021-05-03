@@ -1,13 +1,12 @@
 from KalturaClient import *
 from KalturaClient.Plugins.Core import *
 from KalturaClient.Plugins.Schedule import *
-from KalturaClient.exceptions import KalturaException
 
 # Populate these with appropriate values
 PARTNER_ID     = "XXXXX"
 ADMIN_SECRET   = "YYYYY"
 USER_ID        = "some@user.com"
-TEMPLATE_ENTRY = "1_rlfsj3oi" # this is the template media entry used to create the recordings
+TEMPLATE_ENTRY = "z_zzzzzzzz" # this is the template media entry used to create the recordings
 
 # Get a KalturaClient
 config = KalturaConfiguration(PARTNER_ID)
