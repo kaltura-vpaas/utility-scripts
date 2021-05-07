@@ -14,6 +14,11 @@ TO_DATE      = 1619755200
 INPUT_FILE   = "xxxxxx/liveEntries.csv"
 OUTPUT_DIR   = "xxxxxx/Tables/"
 
+# Input file liveEntries.csv is just a text file with entries listed such as (without the "#" at start of each line):
+#1_lilipe19
+#1_6adpzy86
+#1_xqr5u4ws
+
 reportTypeDict = {
     KalturaReportType.MAP_OVERLAY_COUNTRY_WEBCAST: 'Country/', # 40004
     KalturaReportType.TOP_USERS_WEBCAST:           'Users/', # 40009
