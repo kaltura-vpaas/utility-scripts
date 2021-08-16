@@ -4258,7 +4258,7 @@ class KalturaLiveStreamService extends KalturaServiceBase
 	 * @param string $protocol Protocol of the stream to test.
 	 * @return bool
 	 */
-	function isLive($id, $protocol)
+	function isLive($id, $protocol = null)
 	{
 		$kparams = array();
 		$this->client->addParam($kparams, "id", $id);
@@ -9314,11 +9314,13 @@ class KalturaUserService extends KalturaServiceBase
 	 * Reset user's password and send the user an email to generate a new one.
 	 * 
 	 * @param string $email The user's email address (login email)
+	 * @param string $linkType Kmc or kms
 	 */
-	function resetPassword($email)
+	function resetPassword($email, $linkType = null)
 	{
 		$kparams = array();
 		$this->client->addParam($kparams, "email", $email);
+		$this->client->addParam($kparams, "linkType", $linkType);
 		$this->client->queueServiceActionCall("user", "resetPassword", $kparams);
 		if ($this->client->isMultiRequest())
 			return $this->client->getMultiRequestResult();
@@ -9905,8 +9907,8 @@ class KalturaClient extends KalturaClientBase
 	{
 		parent::__construct($config);
 		
-		$this->setClientTag('php5:20-06-29');
-		$this->setApiVersion('16.5.0');
+		$this->setClientTag('php5:21-01-07');
+		$this->setApiVersion('16.14.0');
 		
 		$this->accessControlProfile = new KalturaAccessControlProfileService($this);
 		$this->accessControl = new KalturaAccessControlService($this);

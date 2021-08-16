@@ -195,6 +195,8 @@ class KalturaCatalogItemLanguage extends KalturaEnumBase
 	const EN_GB = "English (British)";
 	const FI = "Finnish";
 	const FR = "French";
+	const FR_CA = "French (Canada)";
+	const GD = "Gaelic (Scottish)";
 	const DE = "German";
 	const EL = "Greek";
 	const HE = "Hebrew";
@@ -202,19 +204,30 @@ class KalturaCatalogItemLanguage extends KalturaEnumBase
 	const HU = "Hungarian";
 	const IS = "Icelandic";
 	const IN = "Indonesian";
+	const GA = "Irish";
 	const IT = "Italian";
 	const JA = "Japanese";
 	const KO = "Korean";
+	const ML = "Malayalam";
 	const CMN = "Mandarin Chinese";
 	const NO = "Norwegian";
 	const PL = "Polish";
 	const PT = "Portuguese";
+	const PT_BR = "Portuguese (Brazil)";
 	const RO = "Romanian";
 	const RU = "Russian";
 	const ES = "Spanish";
+	const ES_XL = "Spanish (Latin America)";
 	const SV = "Swedish";
+	const ZH_TW = "Taiwanese Mandarin";
+	const TA = "Tamil";
 	const TH = "Thai";
 	const TR = "Turkish";
+	const UK = "Ukrainian";
+	const UR = "Urdu";
+	const VI = "Vietnamese";
+	const CY = "Welsh";
+	const ZU = "Zulu";
 }
 
 /**
@@ -355,6 +368,14 @@ class KalturaDictionary extends KalturaObjectBase
  */
 abstract class KalturaVendorTaskData extends KalturaObjectBase
 {
+	/**
+	 * The duration of the entry for which the task was created for in milliseconds
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $entryDuration = null;
+
 
 }
 
@@ -884,6 +905,13 @@ abstract class KalturaVendorCatalogItem extends KalturaObjectBase
 	 * @var KalturaVendorCatalogItemPricing
 	 */
 	public $pricing;
+
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $allowResubmission = null;
 
 
 }
@@ -2390,6 +2418,31 @@ class KalturaEntryVendorTaskService extends KalturaServiceBase
 	}
 
 	/**
+	 * 
+	 * 
+	 * @param string $filterType 
+	 * @param int $filterInput 
+	 * @param int $status 
+	 * @param string $dueDate 
+	 * @return string
+	 */
+	function getServeUrl($filterType = null, $filterInput = null, $status = null, $dueDate = null)
+	{
+		$kparams = array();
+		$this->client->addParam($kparams, "filterType", $filterType);
+		$this->client->addParam($kparams, "filterInput", $filterInput);
+		$this->client->addParam($kparams, "status", $status);
+		$this->client->addParam($kparams, "dueDate", $dueDate);
+		$this->client->queueServiceActionCall("reach_entryvendortask", "getServeUrl", $kparams);
+		if ($this->client->isMultiRequest())
+			return $this->client->getMultiRequestResult();
+		$resultObject = $this->client->doQueue();
+		$this->client->throwExceptionIfError($resultObject);
+		$this->client->validateObjectType($resultObject, "string");
+		return $resultObject;
+	}
+
+	/**
 	 * List KalturaEntryVendorTask objects
 	 * 
 	 * @param KalturaEntryVendorTaskFilter $filter 
@@ -2431,6 +2484,31 @@ class KalturaEntryVendorTaskService extends KalturaServiceBase
 		$this->client->throwExceptionIfError($resultObject);
 		$this->client->validateObjectType($resultObject, "KalturaEntryVendorTask");
 		return $resultObject;
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param int $vendorPartnerId 
+	 * @param int $partnerId 
+	 * @param int $status 
+	 * @param string $dueDate 
+	 * @return file
+	 */
+	function serve($vendorPartnerId = null, $partnerId = null, $status = null, $dueDate = null)
+	{
+		if ($this->client->isMultiRequest())
+			throw new KalturaClientException("Action is not supported as part of multi-request.", KalturaClientException::ERROR_ACTION_IN_MULTIREQUEST);
+		
+		$kparams = array();
+		$this->client->addParam($kparams, "vendorPartnerId", $vendorPartnerId);
+		$this->client->addParam($kparams, "partnerId", $partnerId);
+		$this->client->addParam($kparams, "status", $status);
+		$this->client->addParam($kparams, "dueDate", $dueDate);
+		$this->client->queueServiceActionCall("reach_entryvendortask", "serve", $kparams);
+		if(!$this->client->getDestinationPath() && !$this->client->getReturnServedResult())
+			return $this->client->getServeUrl();
+		return $this->client->doQueue();
 	}
 
 	/**

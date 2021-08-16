@@ -12,12 +12,12 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class KalturaContentAnalytics implements IKalturaLogger
 {
     const PARENT_PARTNER_IDS = array( //replace the examples below with the PARENT partner IDs you wish to get usage for
-        0000000 => 'API_ADMIN_SECRET',
-        1111111 => 'API_ADMIN_SECRET',
+        xxxxxxx => 'API_ADMIN_SECRET',
+        yyyyyyy => 'API_ADMIN_SECRET'
     );
-    
-    const START_MONTH = '2020-10-01'; //The FIRST day of the month to BEGIN getting usage data from. Format: YYYY-MM-DD (e.g. 2000-01-25)
-    const END_MONTH = '2020-10-31'; //The LAST day of the month to END the export of usage data on. Format: YYYY-MM-DD (e.g. 2000-01-25)
+
+    const START_MONTH = '2021-02-01'; //The FIRST day of the month to BEGIN getting usage data from. Format: YYYY-MM-DD (e.g. 2000-01-25)
+    const END_MONTH = '2021-08-01'; //The LAST day of the month to END the export of usage data on. Format: YYYY-MM-DD (e.g. 2000-01-25)
     
     const DEBUG_PRINTS = true; //Set to true if you'd like the script to output logging to the console (this is different from the KalturaLogger)
     const CYCLE_SIZES = 500; // Determines how many entries will be processed in each multi-request call - set it to whatever number works best for your server.
@@ -154,7 +154,7 @@ class KalturaContentAnalytics implements IKalturaLogger
 
     public function run()
     {
-        //Reset the log file:
+        // Reset the log file:
         file_put_contents(KalturaContentAnalytics::ERROR_LOG_FILE, '');
         $this->log(
             "Here you'll find the log form the Kaltura Client library, in case issues occur you can use this file to investigate and report errors.\n"
@@ -182,15 +182,13 @@ class KalturaContentAnalytics implements IKalturaLogger
             //$startDayStr = strval(date("Ymd", strtotime('first day of this month')));
             //$endDayStr = strval(date("Ymd", strtotime('last day of this month')));
             //$monthStr = strval(date("Y-m-d", strtotime('first day of this month')));
-            echo PHP_EOL.'Getting data for month ' . $monthStr;
+            echo "<br>" . 'Getting data for month ' . $monthStr . "<br>";
 
             foreach (KalturaContentAnalytics::PARENT_PARTNER_IDS as $pid => $adminSecret) {
                 $config = new KalturaConfiguration($pid);
                 $config->serviceUrl = 'https://cdnapisec.kaltura.com';
                 $client = new KalturaClient($config);
-                $ks = $client
-                    ->session
-                    ->start(
+                $ks = $client->session->start(
                         $adminSecret,
                         KalturaContentAnalytics::USER_ID,
                         KalturaSessionType::ADMIN,
@@ -199,18 +197,19 @@ class KalturaContentAnalytics implements IKalturaLogger
                         KalturaContentAnalytics::PRIVILEGES
                     );
                 $client->setKS($ks);
-                echo PHP_EOL . "\t" . 'Getting all sub-accounts for parent: ' . $pid . '...' . PHP_EOL;
+                echo '... Getting all sub-accounts for parent: ' . $pid . '<br>';
                 $allSubAccounts = $this->getAllSubAccounts($client);
-                $allsusb = $this->getListOfIds($allSubAccounts);
-                $totalSubAccounts = count($allsusb);
-                $listsOfSubAccounts = array_chunk($allsusb, KalturaContentAnalytics::CYCLE_SIZES);
+                $allSubs = $this->getListOfIds($allSubAccounts);
+                $totalSubAccounts = count($allSubs);
+                $listsOfSubAccounts = array_chunk($allSubs, KalturaContentAnalytics::CYCLE_SIZES);
                 $curActs = 0;
                 foreach ($listsOfSubAccounts as $subAccounts) {
                     $curActs += count($subAccounts);
-                    echo $this->progress_bar($curActs, $totalSubAccounts, ' ' . $curActs . ' / ' . $totalSubAccounts);
+                    //echo $this->progress_bar($curActs, $totalSubAccounts, ' ' . $curActs . ' / ' . $totalSubAccounts);
                     $objectIds = implode(',', $subAccounts);
                     
-                    $this->log('getting data for month: ' . $monthStr . ' of accounts: ' . $pid . ' [ ' . $objectIds . ' ]');
+                    $this->log('*** getting data for month: ' . $monthStr . ' of accounts: ' . $pid . ' [ ' . $objectIds . ' ]');
+                    echo '...... ' . $objectIds . '<br>';
                     
                     $reportType = KalturaReportType::VPAAS_USAGE_MULTI;
                     $pager = new KalturaFilterPager();
@@ -223,7 +222,7 @@ class KalturaContentAnalytics implements IKalturaLogger
                     $reportInputFilter->toDay = $endDayStr;
                     $reportInputFilter->timeZoneOffset = $timeZoneOffset;
                     $reportInputFilter->interval = KalturaReportInterval::MONTHS;
-                    $reportTable = $this->presistantApiRequest(
+                    $reportTable = $this->persistentApiRequest(
                         $client->report,
                         'getTable',
                         array(
@@ -236,10 +235,11 @@ class KalturaContentAnalytics implements IKalturaLogger
                         ),
                         5
                     );
+
                     //$reportTable = $client->report->getTable($reportType, $reportInputFilter, $pager, $order, $objectIds, $responseOptions);
                     //$reportTable = $client->report->getTotal($reportType, $reportInputFilter, $objectIds, $responseOptions);
-                    $subsUsageTalbe = explode(';', $reportTable->data);
-                    foreach ($subsUsageTalbe as $subUsageRow) {
+                    $subsUsageTable = explode(';', $reportTable->data);
+                    foreach ($subsUsageTable as $subUsageRow) {
                         if (trim($subUsageRow) != '') {
                             $subUsage = explode(',', $subUsageRow);
                             $subPartnerId = $subUsage[2];
@@ -295,7 +295,7 @@ class KalturaContentAnalytics implements IKalturaLogger
         $pager->pageIndex = 1;
         $pager->pageSize = 500;
         //$result = $client->partner->listAction($filter, $pager);
-        $result = $this->presistantApiRequest(
+        $result = $this->persistentApiRequest(
             $client->partner,
             'listAction',
             array(
@@ -309,7 +309,7 @@ class KalturaContentAnalytics implements IKalturaLogger
         while ($N > 0) {
             $filter->idGreaterThan = $result->objects[$N - 1]->id;
             //$result = $client->partner->listAction($filter, $pager);
-            $result = $this->presistantApiRequest(
+            $result = $this->persistentApiRequest(
                 $client->partner,
                 'listAction',
                 array(
@@ -420,7 +420,7 @@ class KalturaContentAnalytics implements IKalturaLogger
         $writer->save($filename);
     }
 
-    private function presistantApiRequest($service, $actionName, $paramsArray, $numOfAttempts)
+    private function persistentApiRequest($service, $actionName, $paramsArray, $numOfAttempts)
     {
         $attempts = 0;
         $lastError = null;
@@ -446,7 +446,7 @@ class KalturaContentAnalytics implements IKalturaLogger
             break;
         } while ($attempts < $numOfAttempts);
         if ($attempts >= $numOfAttempts) {
-            $this->log('======= API BREAKE =======' . PHP_EOL);
+            $this->log('======= API BREAK =======' . PHP_EOL);
             $this->log('Message: ' . $lastError->getMessage() . PHP_EOL);
             $this->log('Last Kaltura client headers:' . PHP_EOL);
             $this->log(
@@ -519,12 +519,11 @@ $formats = [
         'L' => '0',
         'M' => '[$-en-US]mmmm-yy;@'
     ];
-$instance->writeXLSX('oracle-usage.xls', $data, $header, $formats);
+$instance->writeXLSX('partner-usage.xls', $data, $header, $formats);
 
-
-echo 'Successfully exported data!' . PHP_EOL;
-echo 'File name: ' . 'oracle-usage.xls' . PHP_EOL;
+echo '<br>Successfully exported data!<br>';
+echo 'File name: partner-usage.xls<br>';
 
 $time_end = microtime(true);
 $execution_time = ($time_end - $time_start)/60;
-echo 'Total Execution Time: '.$execution_time.' Mins';
+echo 'Total Execution Time: '.$execution_time.' minutes';

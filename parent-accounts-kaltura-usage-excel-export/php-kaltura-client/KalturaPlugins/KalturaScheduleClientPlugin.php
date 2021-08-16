@@ -884,6 +884,27 @@ class KalturaLiveStreamScheduleEvent extends KalturaEntryScheduleEvent
 	 */
 	public $projectedAudience = null;
 
+	/**
+	 * The entry ID of the source entry (for simulive)
+	 *
+	 * @var string
+	 */
+	public $sourceEntryId = null;
+
+	/**
+	 * The time relative time before the startTime considered as preStart time
+	 *
+	 * @var int
+	 */
+	public $preStartTime = null;
+
+	/**
+	 * The time relative time before the endTime considered as postEnd time
+	 *
+	 * @var int
+	 */
+	public $postEndTime = null;
+
 
 }
 

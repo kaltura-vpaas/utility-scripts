@@ -1736,6 +1736,7 @@ class KalturaBatchJobType extends KalturaEnumBase
 	const STORAGE_PERIODIC_EXPORT = "53";
 	const STORAGE_PERIODIC_PURGE = "54";
 	const STORAGE_PERIODIC_DELETE_LOCAL = "55";
+	const REACH_JOB_CLEANER = "56";
 }
 
 /**
@@ -2437,6 +2438,22 @@ class KalturaEdgeServerNodeOrderBy extends KalturaEnumBase
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaEntryApplication extends KalturaEnumBase
+{
+	const KMC = "0";
+	const KMS = "1";
+	const KAF = "2";
+	const PITCH = "3";
+	const KMS_GO = "4";
+	const WEBCAST_APP = "5";
+	const PERSONAL_CAPTURE = "6";
+	const KALTURA_MEETING = "7";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaEntryIdentifierField extends KalturaEnumBase
 {
 	const ID = "id";
@@ -3017,6 +3034,7 @@ class KalturaLanguage extends KalturaEnumBase
 	const FRP = "Franco-Prove";
 	const FRK = "Frankish";
 	const FR = "French";
+	const FR_CA = "French (Canada)";
 	const FY = "Frisian";
 	const FRR = "Frisian Northern";
 	const FUR = "Friulian";
@@ -3050,8 +3068,8 @@ class KalturaLanguage extends KalturaEnumBase
 	const HNI = "Hani";
 	const HA = "Hausa";
 	const HAW = "Hawaiian";
-	const HE = "Hebrew";
 	const IW = "Hebrew";
+	const HE = "Hebrew";
 	const HEI = "Heiltsuk";
 	const HID = "Hidatsa";
 	const HIL = "Hiligaynon";
@@ -3065,8 +3083,8 @@ class KalturaLanguage extends KalturaEnumBase
 	const KPO = "Ikposo";
 	const ILO = "Iloko";
 	const SMN = "Inari Sami";
-	const ID = "Indonesian";
 	const IN = "Indonesian";
+	const ID = "Indonesian";
 	const IZH = "Ingrian";
 	const INH = "Ingush";
 	const IA = "Interlingua";
@@ -3254,6 +3272,7 @@ class KalturaLanguage extends KalturaEnumBase
 	const PL = "Polish";
 	const PNT = "Pontic";
 	const PT = "Portuguese";
+	const PT_BR = "Portuguese (Brazil)";
 	const POT = "Potawatomi";
 	const PRG = "Prussian";
 	const FUC = "Pulaar";
@@ -3326,6 +3345,7 @@ class KalturaLanguage extends KalturaEnumBase
 	const SMA = "Southern Sami";
 	const TCE = "Southern Tutchone";
 	const ES = "Spanish";
+	const ES_XL = "Spanish (Latin America)";
 	const SRN = "Sranan";
 	const STO = "Stoney";
 	const XSV = "Sudovian";
@@ -3346,6 +3366,7 @@ class KalturaLanguage extends KalturaEnumBase
 	const TGX = "Tagish";
 	const THT = "Tahltan";
 	const TDD = "Tai Na";
+	const ZH_TW = "Taiwanese Mandarin";
 	const TG = "Tajik";
 	const TLY = "Talysh";
 	const TTQ = "Tamajaq Tawallammat";
@@ -3413,8 +3434,8 @@ class KalturaLanguage extends KalturaEnumBase
 	const WYM = "Wymysorys";
 	const XH = "Xhosa";
 	const AME = "Yanesha";
-	const YI = "Yiddish";
 	const JI = "Yiddish";
+	const YI = "Yiddish";
 	const YO = "Yoruba";
 	const ZAI = "Zapotec Isthmus";
 	const DJE = "Zarma";
@@ -3461,6 +3482,7 @@ class KalturaLanguageCode extends KalturaEnumBase
 	const EN_US = "en_us";
 	const EO = "eo";
 	const ES = "es";
+	const ES_XL = "es_xl";
 	const ET = "et";
 	const EU = "eu";
 	const FA = "fa";
@@ -3468,6 +3490,7 @@ class KalturaLanguageCode extends KalturaEnumBase
 	const FJ = "fj";
 	const FO = "fo";
 	const FR = "fr";
+	const FR_CA = "fr_ca";
 	const FY = "fy";
 	const GA = "ga";
 	const GD = "gd";
@@ -3539,6 +3562,7 @@ class KalturaLanguageCode extends KalturaEnumBase
 	const PL = "pl";
 	const PS = "ps";
 	const PT = "pt";
+	const PT_BR = "pt_br";
 	const QU = "qu";
 	const RM = "rm";
 	const RN = "rn";
@@ -3590,6 +3614,7 @@ class KalturaLanguageCode extends KalturaEnumBase
 	const YI = "yi";
 	const YO = "yo";
 	const ZH = "zh";
+	const ZH_TW = "zh_tw";
 	const ZU = "zu";
 	const ZXX = "zxx";
 }
@@ -4537,6 +4562,7 @@ class KalturaPlaybackProtocol extends KalturaEnumBase
 	const APPLE_HTTP = "applehttp";
 	const APPLE_HTTP_TO_MC = "applehttp_to_mc";
 	const AUTO = "auto";
+	const DOWNLOAD = "download";
 	const AKAMAI_HD = "hdnetwork";
 	const AKAMAI_HDS = "hdnetworkmanifest";
 	const HDS = "hds";
@@ -4722,6 +4748,8 @@ class KalturaReportType extends KalturaEnumBase
 	const INTERCATIVE_VIDEO_NODE_SWITCH_TOP_HOTSPOTS = "55";
 	const INTERACTIVE_VIDEO_HOTSPOT_CLICKED_PERCENTILES = "56";
 	const INTERACTIVE_VIDEO_NODE_SWITCH_HOTSPOT_CLICKED_PERCENTILES = "57";
+	const TOP_CUSTOM_VAR2 = "58";
+	const TOP_CUSTOM_VAR3 = "59";
 	const PARTNER_USAGE = "201";
 	const MAP_OVERLAY_COUNTRY_REALTIME = "10001";
 	const MAP_OVERLAY_REGION_REALTIME = "10002";
@@ -4824,6 +4852,27 @@ class KalturaReportType extends KalturaEnumBase
 	const QOE_ENGAGEMENT_APPLICATION_VERSION = "30062";
 	const QOE_STREAM_QUALITY_APPLICATION_VERSION = "30063";
 	const QOE_ERROR_TRACKING_APPLICATION_VERSION = "30064";
+	const HIGHLIGHTS_WEBCAST = "40001";
+	const ENGAGEMENT_WEBCAST = "40002";
+	const QUALITY_WEBCAST = "40003";
+	const MAP_OVERLAY_COUNTRY_WEBCAST = "40004";
+	const MAP_OVERLAY_REGION_WEBCAST = "40005";
+	const MAP_OVERLAY_CITY_WEBCAST = "40006";
+	const PLATFORMS_WEBCAST = "40007";
+	const TOP_DOMAINS_WEBCAST = "40008";
+	const TOP_USERS_WEBCAST = "40009";
+	const ENGAGEMENT_BREAKDOWN_WEBCAST = "40010";
+	const ENGAGMENT_TIMELINE_WEBCAST = "40011";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaResetPassLinkType extends KalturaEnumBase
+{
+	const KMC = "1";
+	const KMS = "2";
 }
 
 /**

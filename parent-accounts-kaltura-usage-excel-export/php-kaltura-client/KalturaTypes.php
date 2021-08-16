@@ -784,6 +784,14 @@ class KalturaAsset extends KalturaObjectBase
 	 */
 	public $actualSourceAssetParamsIds = null;
 
+	/**
+	 * The size (in Bytes) of the asset
+	 *
+	 * @var int
+	 * @readonly
+	 */
+	public $sizeInBytes = null;
+
 
 }
 
@@ -1336,6 +1344,22 @@ class KalturaBaseEntry extends KalturaObjectBase
 	 * @var KalturaEntryDisplayInSearchType
 	 */
 	public $displayInSearch = null;
+
+	/**
+	 * Entry application
+	 *
+	 * @var KalturaEntryApplication
+	 * @insertonly
+	 */
+	public $application = null;
+
+	/**
+	 * Entry application version
+	 *
+	 * @var string
+	 * @insertonly
+	 */
+	public $applicationVersion = null;
 
 
 }
@@ -2476,7 +2500,6 @@ class KalturaPartner extends KalturaObjectBase
 	 * 
 	 *
 	 * @var array of KalturaKeyValue
-	 * @insertonly
 	 */
 	public $additionalParams;
 
@@ -2551,6 +2574,14 @@ class KalturaPartner extends KalturaObjectBase
 	 * @readonly
 	 */
 	public $ignoreSeoLinks = null;
+
+	/**
+	 * 
+	 *
+	 * @var bool
+	 * @readonly
+	 */
+	public $blockDirectLogin = null;
 
 	/**
 	 * 
@@ -4992,6 +5023,20 @@ class KalturaUser extends KalturaBaseUser
 	 */
 	public $loginEnabled = null;
 
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $registrationInfo = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $attendanceInfo = null;
+
 
 }
 
@@ -5447,6 +5492,14 @@ class KalturaMediaEntry extends KalturaPlayableEntry
 	 * @insertonly
 	 */
 	public $sourceType = null;
+
+	/**
+	 * The source version of the entry
+	 *
+	 * @var string
+	 * @insertonly
+	 */
+	public $sourceVersion = null;
 
 	/**
 	 * The search provider type used to import this entry
@@ -8182,6 +8235,14 @@ class KalturaLiveStreamEntry extends KalturaLiveEntry
 	 */
 	public $sipToken = null;
 
+	/**
+	 * 
+	 *
+	 * @var KalturaSipSourceType
+	 * @readonly
+	 */
+	public $sipSourceType = null;
+
 
 }
 
@@ -9563,6 +9624,22 @@ class KalturaPlaybackSource extends KalturaObjectBase
  * @package Kaltura
  * @subpackage Client
  */
+abstract class KalturaTypedArray extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $count = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaPlaybackContext extends KalturaObjectBase
 {
 	/**
@@ -9599,6 +9676,13 @@ class KalturaPlaybackContext extends KalturaObjectBase
 	 * @var array of KalturaAccessControlMessage
 	 */
 	public $messages;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaTypedArray
+	 */
+	public $bumperData;
 
 
 }
@@ -9827,6 +9911,29 @@ class KalturaReportBaseTotal extends KalturaObjectBase
 	 * @var string
 	 */
 	public $data = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaReportExportFile extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $fileId = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $fileName = null;
 
 
 }
@@ -10229,6 +10336,13 @@ class KalturaReportExportParams extends KalturaObjectBase
 	 * @var array of KalturaReportExportItem
 	 */
 	public $reportItems;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $reportsItemsGroup = null;
 
 
 }
@@ -11314,6 +11428,13 @@ class KalturaStorageProfile extends KalturaObjectBase
 	 *
 	 * @var string
 	 */
+	public $pathPrefix = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
 	public $storageUsername = null;
 
 	/**
@@ -12188,6 +12309,13 @@ class KalturaWidget extends KalturaObjectBase
 	 * @var string
 	 */
 	public $roles = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $privileges = null;
 
 
 }
@@ -14812,22 +14940,6 @@ class KalturaDeliveryProfileAkamaiHds extends KalturaDeliveryProfile
  * @package Kaltura
  * @subpackage Client
  */
-class KalturaDeliveryProfileAkamaiHttp extends KalturaDeliveryProfile
-{
-	/**
-	 * Should we use intelliseek
-	 *
-	 * @var bool
-	 */
-	public $useIntelliseek = null;
-
-
-}
-
-/**
- * @package Kaltura
- * @subpackage Client
- */
 abstract class KalturaDeliveryProfileBaseFilter extends KalturaFilter
 {
 	/**
@@ -14997,7 +15109,7 @@ class KalturaDeliveryProfileGenericHds extends KalturaDeliveryProfile
  * @package Kaltura
  * @subpackage Client
  */
-class KalturaDeliveryProfileGenericHttp extends KalturaDeliveryProfile
+class KalturaDeliveryProfileGenericSilverLight extends KalturaDeliveryProfile
 {
 	/**
 	 * 
@@ -15013,14 +15125,14 @@ class KalturaDeliveryProfileGenericHttp extends KalturaDeliveryProfile
  * @package Kaltura
  * @subpackage Client
  */
-class KalturaDeliveryProfileGenericSilverLight extends KalturaDeliveryProfile
+class KalturaDeliveryProfileHttp extends KalturaDeliveryProfile
 {
 	/**
 	 * 
 	 *
-	 * @var string
+	 * @var int
 	 */
-	public $pattern = null;
+	public $maxSize = null;
 
 
 }
@@ -17483,6 +17595,20 @@ class KalturaReportExportJobData extends KalturaJobData
 	 */
 	public $filePaths = null;
 
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $reportsGroup = null;
+
+	/**
+	 * 
+	 *
+	 * @var array of KalturaReportExportFile
+	 */
+	public $files;
+
 
 }
 
@@ -18574,6 +18700,22 @@ class KalturaUrlRecognizerAkamaiG2O extends KalturaUrlRecognizer
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaUrlRecognizerKaltura extends KalturaUrlRecognizer
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $key = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaUrlTokenizerAkamaiHttp extends KalturaUrlTokenizer
 {
 	/**
@@ -18765,6 +18907,15 @@ class KalturaUrlTokenizerCloudFront extends KalturaUrlTokenizer
 	 */
 	public $rootDir = null;
 
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaUrlTokenizerKaltura extends KalturaUrlTokenizer
+{
 
 }
 
@@ -20288,6 +20439,13 @@ class KalturaConvertJobData extends KalturaConvartableJobData
 	/**
 	 * 
 	 *
+	 * @var string
+	 */
+	public $destFileSyncSharedPath = null;
+
+	/**
+	 * 
+	 *
 	 * @var int
 	 */
 	public $userCpu = null;
@@ -20315,6 +20473,22 @@ class KalturaCountryCondition extends KalturaMatchCondition
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaDeliveryProfileAkamaiHttp extends KalturaDeliveryProfileHttp
+{
+	/**
+	 * Should we use intelliseek
+	 *
+	 * @var bool
+	 */
+	public $useIntelliseek = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaDeliveryProfileFilter extends KalturaDeliveryProfileBaseFilter
 {
 	/**
@@ -20323,6 +20497,22 @@ class KalturaDeliveryProfileFilter extends KalturaDeliveryProfileBaseFilter
 	 * @var KalturaNullableBoolean
 	 */
 	public $isLive = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaDeliveryProfileGenericHttp extends KalturaDeliveryProfileHttp
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $pattern = null;
 
 
 }
