@@ -60,7 +60,8 @@ with open(INPUT_FILE, 'r') as readObj:
         # Iterate over each row in the csv using reader object
         for row in csvReader:
             # row variable is a list that represents a row in csv
-            entryId = row[0]
+            sessionName = row[0]
+            entryId = row[1]
 
             try:
                 reportInputFilter = KalturaReportInputFilter()
@@ -76,8 +77,8 @@ with open(INPUT_FILE, 'r') as readObj:
 
                 # Only print header once
                 if entryCount == 0:
-                    print("EntryID," + result.header, file = outputFile)
-                print("%s,%s" % (entryId, data), file = outputFile)
+                    print("SessionCode,EntryID," + result.header, file = outputFile)
+                print("%s,%s,%s" % (sessionName, entryId, data), file = outputFile)
                 entryCount += 1
 
             except KalturaException as e:
