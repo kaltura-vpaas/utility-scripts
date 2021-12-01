@@ -16,8 +16,8 @@ class KalturaContentAnalytics implements IKalturaLogger
         yyyyyyy => 'API_ADMIN_SECRET'
     );
 
-    const START_MONTH = '2021-02-01'; //The FIRST day of the month to BEGIN getting usage data from. Format: YYYY-MM-DD (e.g. 2000-01-25)
-    const END_MONTH = '2021-08-01'; //The LAST day of the month to END the export of usage data on. Format: YYYY-MM-DD (e.g. 2000-01-25)
+    const START_MONTH = '2021-04-01'; //The FIRST day of the month to BEGIN getting usage data from. Format: YYYY-MM-DD (e.g. 2000-01-25)
+    const END_MONTH = '2021-06-30'; //The LAST day of the month to END the export of usage data on. Format: YYYY-MM-DD (e.g. 2000-01-25)
     
     const DEBUG_PRINTS = true; //Set to true if you'd like the script to output logging to the console (this is different from the KalturaLogger)
     const CYCLE_SIZES = 500; // Determines how many entries will be processed in each multi-request call - set it to whatever number works best for your server.
@@ -200,7 +200,9 @@ class KalturaContentAnalytics implements IKalturaLogger
                 echo '... Getting all sub-accounts for parent: ' . $pid . '<br>';
                 $allSubAccounts = $this->getAllSubAccounts($client);
                 $allSubs = $this->getListOfIds($allSubAccounts);
-                $totalSubAccounts = count($allSubs);
+                $allSubsSecret = $this->getListOfIdsAndSecrets($allSubAccounts); // Objects array of all child PIDs and Admin Secrets
+
+                $totalSubAccounts = count($allSubs); // Total count of number of child PIDs
                 $listsOfSubAccounts = array_chunk($allSubs, KalturaContentAnalytics::CYCLE_SIZES);
                 $curActs = 0;
                 foreach ($listsOfSubAccounts as $subAccounts) {
@@ -242,7 +244,7 @@ class KalturaContentAnalytics implements IKalturaLogger
                     foreach ($subsUsageTable as $subUsageRow) {
                         if (trim($subUsageRow) != '') {
                             $subUsage = explode(',', $subUsageRow);
-                            $subPartnerId = $subUsage[2];
+                            $subPartnerId = $subUsage[2]; // Need to get PID here to get LVH
                             $tRowObj = new \stdClass();
                             for ($i = 0; $i < count($subUsage); ++$i) {
                                 $showField = KalturaContentAnalytics::HEADERS_FIELD_TYPES[$i]['show'];
@@ -257,6 +259,20 @@ class KalturaContentAnalytics implements IKalturaLogger
                                     $tRowObj->{$prettyFieldName}->type = $cellType;
                                 }
                             }
+
+                            //Get Live Viewing Hours
+                            $lvh = $this->getLVH($subPartnerId,$allSubsSecret,$startDayStr,$endDayStr,$timeZoneOffset);
+                            $prettyHeader = 'LVH';
+                            $tRowObj->{$prettyHeader} = new \stdClass();
+                            if ($lvh<0){
+                                $tRowObj->{$prettyHeader}->value = 0;
+                            }
+                            else {
+                                $tRowObj->{$prettyHeader}->value = $lvh/60;
+                            }
+                            $tRowObj->{$prettyHeader}->type = 'float';
+
+
                             $prettyHeader = 'Parent ID';
                             $tRowObj->{$prettyHeader} = new \stdClass();
                             $tRowObj->{$prettyHeader}->value = $pid;
@@ -283,6 +299,66 @@ class KalturaContentAnalytics implements IKalturaLogger
             $actIds[] = $subpartner->id;
         }
         return $actIds;
+    }
+
+    private function getListOfIdsAndSecrets($accounts)
+    {
+        $actIdsAndSecrets = array();
+        foreach ($accounts as $subpartner) {
+            //$actIdsAndSecrets[] = array($subpartner->id=>$subpartner->adminSecret);
+            if ($subpartner->status == 1) {     //Check if partner is ACTIVE
+                $actIdsAndSecrets[$subpartner->id] = $subpartner->adminSecret;
+            }
+
+        }
+        return $actIdsAndSecrets;
+    }
+
+    private function getLVH($subpid, $pidArray,$startDayStr,$endDayStr,$timeZoneOffset)
+    {
+        if (isset($pidArray[$subpid])) {    //Check if partner is ACTIVE
+            $config = new KalturaConfiguration($subpid);
+            $config->serviceUrl = 'https://cdnapisec.kaltura.com';
+            $client = new KalturaClient($config);
+            $ks = $client
+                ->session
+                ->start(
+                    $pidArray[$subpid],
+                    KalturaContentAnalytics::USER_ID,
+                    KalturaSessionType::ADMIN,
+                    $subpid,
+                    KalturaContentAnalytics::EXPIRY,
+                    KalturaContentAnalytics::PRIVILEGES
+                );
+            $client->setKS($ks);
+
+            $objectIds = "";
+            $reportType = KalturaReportType::HIGHLIGHTS_WEBCAST;
+            $reportInputFilter = new KalturaReportInputFilter();
+            $reportInputFilter->fromDay = $startDayStr;
+            $reportInputFilter->toDay = $endDayStr;
+            $reportInputFilter->timeZoneOffset = $timeZoneOffset;
+            $reportInputFilter->interval = KalturaReportInterval::MONTHS;
+            $responseOptions = new KalturaReportResponseOptions();
+
+            $reportTable = $this->persistentApiRequest(
+                $client->report,
+                'getTotal',
+                array(
+                    $reportType,
+                    $reportInputFilter,
+                    $objectIds,
+                    $responseOptions
+                ),
+                5
+            );
+            $exploded = explode(',', $reportTable->data);
+            $lvhmin = end($exploded);
+            return $lvhmin;
+        }
+        else {
+            return -1;
+        }
     }
 
     private function getAllSubAccounts($client)
@@ -488,6 +564,7 @@ $header = array(
     'Entries',
     'Views',
     'Unique IDs',
+    'LVH',
     'Parent ID',
     'Month Usage'
 );
@@ -516,8 +593,9 @@ $formats = [
         'I' => '#,##0',
         'J' => '#,##0',
         'K' => '#,##0',
-        'L' => '0',
-        'M' => '[$-en-US]mmmm-yy;@'
+        'L' => '#,##0.00',
+        'M' => '0',
+        'N' => '[$-en-US]mmmm-yy;@'
     ];
 $instance->writeXLSX('partner-usage.xls', $data, $header, $formats);
 
