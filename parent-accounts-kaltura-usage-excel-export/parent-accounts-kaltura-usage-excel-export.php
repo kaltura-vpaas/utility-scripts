@@ -268,20 +268,25 @@ class KalturaContentAnalytics implements IKalturaLogger
                             $selfServeUsageResponse = $this->getTotalReport($subPartnerId,$allSubsSecret,$startDayStr,$endDayStr,$timeZoneOffset,KalturaReportType::SELF_SERVE_USAGE);
 
                             // Get delivered video streams (playmanifest)
-                            $numStreams = $selfServeUsageResponse['video_streams'];
                             $prettyHeader = 'Delivered Streams';
                             $tRowObj->{$prettyHeader} = new \stdClass();
-                            $tRowObj->{$prettyHeader}->value = $numStreams;
-                            $tRowObj->{$prettyHeader}->type = 'int';
-
-                            // Get Live Viewing Hours
-                            $lvh = $selfServeUsageResponse['live_view_time'];
-                            $prettyHeader = 'LVH';
-                            $tRowObj->{$prettyHeader} = new \stdClass();
-                            if ($lvh<0){
+                            if ($selfServeUsageResponse == -1){
                                 $tRowObj->{$prettyHeader}->value = 0;
                             }
                             else {
+                                $numStreams = $selfServeUsageResponse['video_streams'];
+                                $tRowObj->{$prettyHeader}->value = $numStreams;
+                            }
+                            $tRowObj->{$prettyHeader}->type = 'int';
+
+                            // Get Live Viewing Hours
+                            $prettyHeader = 'LVH';
+                            $tRowObj->{$prettyHeader} = new \stdClass();
+                            if ($selfServeUsageResponse == -1){
+                                $tRowObj->{$prettyHeader}->value = 0;
+                            }
+                            else {
+                                $lvh = $selfServeUsageResponse['live_view_time'];
                                 $tRowObj->{$prettyHeader}->value = $lvh/60;
                             }
                             $tRowObj->{$prettyHeader}->type = 'float';
