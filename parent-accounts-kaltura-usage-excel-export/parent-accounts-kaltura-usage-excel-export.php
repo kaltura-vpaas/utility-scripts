@@ -16,8 +16,8 @@ class KalturaContentAnalytics implements IKalturaLogger
         yyyyyyy => 'API_ADMIN_SECRET'
     );
 
-    const START_MONTH = '2021-04-01'; //The FIRST day of the month to BEGIN getting usage data from. Format: YYYY-MM-DD (e.g. 2000-01-25)
-    const END_MONTH = '2021-06-30'; //The LAST day of the month to END the export of usage data on. Format: YYYY-MM-DD (e.g. 2000-01-25)
+    const START_MONTH = '2022-03-01'; //The FIRST day of the month to BEGIN getting usage data from. Format: YYYY-MM-DD (e.g. 2000-01-25)
+    const END_MONTH = '2022-09-30'; //The LAST day of the month to END the export of usage data on. Format: YYYY-MM-DD (e.g. 2000-01-25)
     
     const DEBUG_PRINTS = true; //Set to true if you'd like the script to output logging to the console (this is different from the KalturaLogger)
     const CYCLE_SIZES = 500; // Determines how many entries will be processed in each multi-request call - set it to whatever number works best for your server.
@@ -26,6 +26,10 @@ class KalturaContentAnalytics implements IKalturaLogger
     const USER_ID = 'ListSubAccounts';
     const EXPIRY = 86400;
     const PRIVILEGES = '*';
+
+    const SERVICE_URL = 'https://cdnapisec.kaltura.com';
+    //const SERVICE_URL = 'https://api.eu.kaltura.com';
+    //const SERVICE_URL = 'https://api.ca.kaltura.com';
     
     const HEADERS_FIELD_TYPES = array(
         array(
@@ -186,7 +190,7 @@ class KalturaContentAnalytics implements IKalturaLogger
 
             foreach (KalturaContentAnalytics::PARENT_PARTNER_IDS as $pid => $adminSecret) {
                 $config = new KalturaConfiguration($pid);
-                $config->serviceUrl = 'https://cdnapisec.kaltura.com';
+                $config->serviceUrl = KalturaContentAnalytics::SERVICE_URL;
                 $client = new KalturaClient($config);
                 $ks = $client->session->start(
                         $adminSecret,
@@ -260,8 +264,18 @@ class KalturaContentAnalytics implements IKalturaLogger
                                 }
                             }
 
-                            //Get Live Viewing Hours
-                            $lvh = $this->getLVH($subPartnerId,$allSubsSecret,$startDayStr,$endDayStr,$timeZoneOffset);
+                            // Get Self Serve Usage totals report
+                            $selfServeUsageResponse = $this->getTotalReport($subPartnerId,$allSubsSecret,$startDayStr,$endDayStr,$timeZoneOffset,KalturaReportType::SELF_SERVE_USAGE);
+
+                            // Get delivered video streams (playmanifest)
+                            $numStreams = $selfServeUsageResponse['video_streams'];
+                            $prettyHeader = 'Delivered Streams';
+                            $tRowObj->{$prettyHeader} = new \stdClass();
+                            $tRowObj->{$prettyHeader}->value = $numStreams;
+                            $tRowObj->{$prettyHeader}->type = 'int';
+
+                            // Get Live Viewing Hours
+                            $lvh = $selfServeUsageResponse['live_view_time'];
                             $prettyHeader = 'LVH';
                             $tRowObj->{$prettyHeader} = new \stdClass();
                             if ($lvh<0){
@@ -271,7 +285,6 @@ class KalturaContentAnalytics implements IKalturaLogger
                                 $tRowObj->{$prettyHeader}->value = $lvh/60;
                             }
                             $tRowObj->{$prettyHeader}->type = 'float';
-
 
                             $prettyHeader = 'Parent ID';
                             $tRowObj->{$prettyHeader} = new \stdClass();
@@ -314,11 +327,11 @@ class KalturaContentAnalytics implements IKalturaLogger
         return $actIdsAndSecrets;
     }
 
-    private function getLVH($subpid, $pidArray,$startDayStr,$endDayStr,$timeZoneOffset)
+    private function getTotalReport($subpid, $pidArray,$startDayStr,$endDayStr,$timeZoneOffset,$reportType)
     {
-        if (isset($pidArray[$subpid])) {    //Check if partner is ACTIVE
+        if (isset($pidArray[$subpid])) { // Check if partner is ACTIVE
             $config = new KalturaConfiguration($subpid);
-            $config->serviceUrl = 'https://cdnapisec.kaltura.com';
+            $config->serviceUrl = KalturaContentAnalytics::SERVICE_URL;
             $client = new KalturaClient($config);
             $ks = $client
                 ->session
@@ -333,7 +346,6 @@ class KalturaContentAnalytics implements IKalturaLogger
             $client->setKS($ks);
 
             $objectIds = "";
-            $reportType = KalturaReportType::HIGHLIGHTS_WEBCAST;
             $reportInputFilter = new KalturaReportInputFilter();
             $reportInputFilter->fromDay = $startDayStr;
             $reportInputFilter->toDay = $endDayStr;
@@ -352,9 +364,14 @@ class KalturaContentAnalytics implements IKalturaLogger
                 ),
                 5
             );
-            $exploded = explode(',', $reportTable->data);
-            $lvhmin = end($exploded);
-            return $lvhmin;
+            $responseHeader = explode(',', $reportTable->header);
+            $responseData = explode(',', $reportTable->data);
+
+            // Populate response with dictionary of header (key) and data (value)
+            foreach ($responseHeader as $key => $value) {
+                $returnVal[$value] = $responseData[$key];
+            }
+            return $returnVal;
         }
         else {
             return -1;
@@ -564,6 +581,7 @@ $header = array(
     'Entries',
     'Views',
     'Unique IDs',
+    'Delivered Streams',
     'LVH',
     'Parent ID',
     'Month Usage'
@@ -593,9 +611,10 @@ $formats = [
         'I' => '#,##0',
         'J' => '#,##0',
         'K' => '#,##0',
-        'L' => '#,##0.00',
-        'M' => '0',
-        'N' => '[$-en-US]mmmm-yy;@'
+        'L' => '#,##0',
+        'M' => '#,##0.00',
+        'N' => '0',
+        'O' => '[$-en-US]mmmm-yy;@'
     ];
 $instance->writeXLSX('partner-usage.xls', $data, $header, $formats);
 
