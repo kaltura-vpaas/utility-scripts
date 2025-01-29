@@ -6,10 +6,10 @@
 //                          |_|\_\__,_|_|\__|\_,_|_| \__,_|
 //
 // This file is part of the Kaltura Collaborative Media Suite which allows users
-// to do with audio, video, and animation what Wiki platfroms allow them to do with
+// to do with audio, video, and animation what Wiki platforms allow them to do with
 // text.
 //
-// Copyright (C) 2006-2020  Kaltura Inc.
+// Copyright (C) 2006-2021  Kaltura Inc.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -72,6 +72,7 @@ class KalturaDrmProfileStatus extends KalturaEnumBase
  */
 class KalturaDrmLicenseScenario extends KalturaEnumBase
 {
+	const NONE = "0";
 	const PROTECTION = "playReady.PROTECTION";
 	const PURCHASE = "playReady.PURCHASE";
 	const RENTAL = "playReady.RENTAL";

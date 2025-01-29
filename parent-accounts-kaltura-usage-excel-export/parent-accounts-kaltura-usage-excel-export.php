@@ -3,7 +3,8 @@ set_time_limit(0);
 ini_set('memory_limit', '2048M');
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', 1);
-date_default_timezone_set('Israel'); //make sure to set the expected timezone
+date_default_timezone_set('America/New_York'); //make sure to set the expected timezone
+error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 require_once (dirname(__FILE__) . '/php-kaltura-client/KalturaClient.php');
 require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -18,8 +19,8 @@ class KalturaContentAnalytics implements IKalturaLogger
 
     const START_MONTH = '2022-03-01'; //The FIRST day of the month to BEGIN getting usage data from. Format: YYYY-MM-DD (e.g. 2000-01-25)
     const END_MONTH = '2022-09-30'; //The LAST day of the month to END the export of usage data on. Format: YYYY-MM-DD (e.g. 2000-01-25)
-    
-    const DEBUG_PRINTS = true; //Set to true if you'd like the script to output logging to the console (this is different from the KalturaLogger)
+
+    const GET_LVH_AND_DELIVERED_STREAMS = true;    const DEBUG_PRINTS = true; //Set to true if you'd like the script to output logging to the console (this is different from the KalturaLogger)
     const CYCLE_SIZES = 500; // Determines how many entries will be processed in each multi-request call - set it to whatever number works best for your server.
     const ERROR_LOG_FILE = 'kaltura_logger.txt'; //The name of the KalturaLogger export file
     // Defines a stop date for the entries iteration loop. Any time string supported by strtotime() can be passed. If this is set to null or -1, it will be ignored and the script will run through the entire library until it reaches the first created entry.
@@ -28,8 +29,8 @@ class KalturaContentAnalytics implements IKalturaLogger
     const PRIVILEGES = '*';
 
     const SERVICE_URL = 'https://cdnapisec.kaltura.com';
-    //const SERVICE_URL = 'https://api.eu.kaltura.com';
-    //const SERVICE_URL = 'https://api.ca.kaltura.com';
+    //const SERVICE_URL = 'https://api.eu.kaltura.com'; // For Europe
+    //const SERVICE_URL = 'https://api.ca.kaltura.com'; // For Canada
     
     const HEADERS_FIELD_TYPES = array(
         array(
@@ -63,7 +64,7 @@ class KalturaContentAnalytics implements IKalturaLogger
         array(
             'field' => 'total_plays',
             'type' => 'int',
-            'pretty' => 'Plays',
+            'pretty' => 'Plays (VOD)',
             'show' => true,
             'divider' => 1
         ),
@@ -105,7 +106,7 @@ class KalturaContentAnalytics implements IKalturaLogger
         array(
             'field' => 'total_views',
             'type' => 'int',
-            'pretty' => 'Views',
+            'pretty' => 'Views (VOD)',
             'show' => true,
             'divider' => 1
         ),
@@ -264,8 +265,13 @@ class KalturaContentAnalytics implements IKalturaLogger
                                 }
                             }
 
-                            // Get Self Serve Usage totals report
-                            $selfServeUsageResponse = $this->getTotalReport($subPartnerId,$allSubsSecret,$startDayStr,$endDayStr,$timeZoneOffset,KalturaReportType::SELF_SERVE_USAGE);
+                            if (KalturaContentAnalytics::GET_LVH_AND_DELIVERED_STREAMS) {
+                                // Get Self Serve Usage totals report
+                                $selfServeUsageResponse = $this->getTotalReport($subPartnerId,$allSubsSecret,$startDayStr,$endDayStr,$timeZoneOffset,KalturaReportType::SELF_SERVE_USAGE);
+                            }
+                            else {
+                                $selfServeUsageResponse = -1;
+                            }
 
                             // Get delivered video streams (playmanifest)
                             $prettyHeader = 'Delivered Streams';
@@ -579,12 +585,12 @@ $header = array(
     'Account Name',
     'Account ID',
     'Creation Date',
-    'Plays',
+    'Plays (VOD)',
     'Bandwidth GB',
     'Storage GB',
     'Transcoding GB',
     'Entries',
-    'Views',
+    'Views (VOD)',
     'Unique IDs',
     'Delivered Streams',
     'LVH',

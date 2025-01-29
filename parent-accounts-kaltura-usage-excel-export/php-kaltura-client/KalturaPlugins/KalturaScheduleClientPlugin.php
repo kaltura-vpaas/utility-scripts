@@ -6,10 +6,10 @@
 //                          |_|\_\__,_|_|\__|\_,_|_| \__,_|
 //
 // This file is part of the Kaltura Collaborative Media Suite which allows users
-// to do with audio, video, and animation what Wiki platfroms allow them to do with
+// to do with audio, video, and animation what Wiki platforms allow them to do with
 // text.
 //
-// Copyright (C) 2006-2020  Kaltura Inc.
+// Copyright (C) 2006-2021  Kaltura Inc.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -88,6 +88,9 @@ class KalturaScheduleEventType extends KalturaEnumBase
 	const RECORD = 1;
 	const LIVE_STREAM = 2;
 	const BLACKOUT = 3;
+	const MEETING = 4;
+	const LIVE_REDIRECT = 5;
+	const VOD = 6;
 }
 
 /**
@@ -269,6 +272,29 @@ class KalturaScheduleResourceOrderBy extends KalturaEnumBase
 	const UPDATED_AT_ASC = "+updatedAt";
 	const CREATED_AT_DESC = "-createdAt";
 	const UPDATED_AT_DESC = "-updatedAt";
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaLinkedScheduleEvent extends KalturaObjectBase
+{
+	/**
+	 * The time between the end of the event which it's id is in $eventId and the start of the event holding this object
+	 *
+	 * @var int
+	 */
+	public $offset = null;
+
+	/**
+	 * The id of the event influencing the start of the event holding this object
+	 *
+	 * @var int
+	 */
+	public $eventId = null;
+
+
 }
 
 /**
@@ -481,6 +507,20 @@ abstract class KalturaScheduleEvent extends KalturaObjectBase
 	 * @var string
 	 */
 	public $referenceId = null;
+
+	/**
+	 * Contains the Id of the event that influences the timing of this event and the offset of time.
+	 *
+	 * @var KalturaLinkedScheduleEvent
+	 */
+	public $linkedTo;
+
+	/**
+	 * An array of Schedule Event Ids that their start time depends on the end of the current.
+	 *
+	 * @var string
+	 */
+	public $linkedBy = null;
 
 	/**
 	 * 
@@ -875,35 +915,23 @@ class KalturaScheduleResourceListResponse extends KalturaListResponse
  * @package Kaltura
  * @subpackage Client
  */
-class KalturaLiveStreamScheduleEvent extends KalturaEntryScheduleEvent
+abstract class KalturaBaseLiveScheduleEvent extends KalturaEntryScheduleEvent
 {
-	/**
-	 * Defines the expected audience.
-	 *
-	 * @var int
-	 */
-	public $projectedAudience = null;
 
-	/**
-	 * The entry ID of the source entry (for simulive)
-	 *
-	 * @var string
-	 */
-	public $sourceEntryId = null;
+}
 
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaMeetingScheduleEvent extends KalturaEntryScheduleEvent
+{
 	/**
 	 * The time relative time before the startTime considered as preStart time
 	 *
 	 * @var int
 	 */
 	public $preStartTime = null;
-
-	/**
-	 * The time relative time before the endTime considered as postEnd time
-	 *
-	 * @var int
-	 */
-	public $postEndTime = null;
 
 
 }
@@ -1326,6 +1354,82 @@ abstract class KalturaScheduleResourceBaseFilter extends KalturaRelatedFilter
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaVodScheduleEvent extends KalturaEntryScheduleEvent
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaLiveRedirectScheduleEvent extends KalturaBaseLiveScheduleEvent
+{
+	/**
+	 * The vod entry to redirect
+	 *
+	 * @var string
+	 */
+	public $redirectEntryId = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaLiveStreamScheduleEvent extends KalturaBaseLiveScheduleEvent
+{
+	/**
+	 * The entry ID of the source entry (for simulive)
+	 *
+	 * @var string
+	 */
+	public $sourceEntryId = null;
+
+	/**
+	 * Defines the expected audience.
+	 *
+	 * @var int
+	 */
+	public $projectedAudience = null;
+
+	/**
+	 * The time relative time before the startTime considered as preStart time
+	 *
+	 * @var int
+	 */
+	public $preStartTime = null;
+
+	/**
+	 * The time relative time before the endTime considered as postEnd time
+	 *
+	 * @var int
+	 */
+	public $postEndTime = null;
+
+	/**
+	 * The entry id of the pre start entry
+	 *
+	 * @var string
+	 */
+	public $preStartEntryId = null;
+
+	/**
+	 * The entry id of the post end entry
+	 *
+	 * @var string
+	 */
+	public $postEndEntryId = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaScheduleEventFilter extends KalturaScheduleEventBaseFilter
 {
 	/**
@@ -1593,6 +1697,15 @@ class KalturaLocationScheduleResourceFilter extends KalturaLocationScheduleResou
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaLiveRedirectScheduleEventFilter extends KalturaEntryScheduleEventFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaLiveStreamScheduleEventBaseFilter extends KalturaEntryScheduleEventFilter
 {
 
@@ -1602,7 +1715,25 @@ abstract class KalturaLiveStreamScheduleEventBaseFilter extends KalturaEntrySche
  * @package Kaltura
  * @subpackage Client
  */
+abstract class KalturaMeetingScheduleEventBaseFilter extends KalturaEntryScheduleEventFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaRecordScheduleEventBaseFilter extends KalturaEntryScheduleEventFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaVodScheduleEventBaseFilter extends KalturaEntryScheduleEventFilter
 {
 
 }
@@ -1629,7 +1760,25 @@ class KalturaLiveStreamScheduleEventFilter extends KalturaLiveStreamScheduleEven
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaMeetingScheduleEventFilter extends KalturaMeetingScheduleEventBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaRecordScheduleEventFilter extends KalturaRecordScheduleEventBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaVodScheduleEventFilter extends KalturaVodScheduleEventBaseFilter
 {
 
 }

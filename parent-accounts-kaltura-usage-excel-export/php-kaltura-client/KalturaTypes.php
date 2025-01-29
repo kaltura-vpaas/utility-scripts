@@ -6,10 +6,10 @@
 //                          |_|\_\__,_|_|\__|\_,_|_| \__,_|
 //
 // This file is part of the Kaltura Collaborative Media Suite which allows users
-// to do with audio, video, and animation what Wiki platfroms allow them to do with
+// to do with audio, video, and animation what Wiki platforms allow them to do with
 // text.
 //
-// Copyright (C) 2006-2020  Kaltura Inc.
+// Copyright (C) 2006-2021  Kaltura Inc.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -1361,6 +1361,13 @@ class KalturaBaseEntry extends KalturaObjectBase
 	 */
 	public $applicationVersion = null;
 
+	/**
+	 * Block auto transcript on Entry
+	 *
+	 * @var bool
+	 */
+	public $blockAutoTranscript = null;
+
 
 }
 
@@ -2235,6 +2242,22 @@ class KalturaESearchLanguageItem extends KalturaObjectBase
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaRegexItem extends KalturaObjectBase
+{
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $regex = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaPartner extends KalturaObjectBase
 {
 	/**
@@ -2747,6 +2770,63 @@ class KalturaPartner extends KalturaObjectBase
 	 * @readonly
 	 */
 	public $monitorUsage = null;
+
+	/**
+	 * 
+	 *
+	 * @var array of KalturaRegexItem
+	 */
+	public $passwordStructureValidations;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $passwordStructureValidationsDescription = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $passReplaceFreq = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $maxLoginAttempts = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $loginBlockPeriod = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $numPrevPassToKeep = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaTwoFactorAuthenticationMode
+	 * @readonly
+	 */
+	public $twoFactorAuthenticationMode = null;
+
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $isSelfServe = null;
 
 
 }
@@ -3420,6 +3500,13 @@ class KalturaCategory extends KalturaObjectBase
 	 * @var string
 	 */
 	public $aggregationCategories = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $adminTags = null;
 
 
 }
@@ -4940,6 +5027,29 @@ class KalturaDrmPlaybackPluginData extends KalturaPluginData
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaDynamicEmailContents extends KalturaObjectBase
+{
+	/**
+	 * The subject of the customized email
+	 *
+	 * @var string
+	 */
+	public $emailSubject = null;
+
+	/**
+	 * The body of the customized email
+	 *
+	 * @var string
+	 */
+	public $emailBody = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 class KalturaUser extends KalturaBaseUser
 {
 	/**
@@ -5036,6 +5146,35 @@ class KalturaUser extends KalturaBaseUser
 	 * @var string
 	 */
 	public $attendanceInfo = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $title = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $company = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $ksPrivileges = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 * @readonly
+	 */
+	public $encryptedSeed = null;
 
 
 }
@@ -5418,6 +5557,13 @@ class KalturaPlayableEntry extends KalturaBaseEntry
  */
 class KalturaStreamContainer extends KalturaObjectBase
 {
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $id = null;
+
 	/**
 	 * 
 	 *
@@ -8950,6 +9096,13 @@ class KalturaBaseEntryFilter extends KalturaBaseEntryBaseFilter
 	 */
 	public $redirectFromEntryId = null;
 
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $conversionProfileIdEqual = null;
+
 
 }
 
@@ -9624,22 +9777,6 @@ class KalturaPlaybackSource extends KalturaObjectBase
  * @package Kaltura
  * @subpackage Client
  */
-abstract class KalturaTypedArray extends KalturaObjectBase
-{
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	public $count = null;
-
-
-}
-
-/**
- * @package Kaltura
- * @subpackage Client
- */
 class KalturaPlaybackContext extends KalturaObjectBase
 {
 	/**
@@ -9680,7 +9817,7 @@ class KalturaPlaybackContext extends KalturaObjectBase
 	/**
 	 * 
 	 *
-	 * @var KalturaTypedArray
+	 * @var array of KalturaObject
 	 */
 	public $bumperData;
 
@@ -10226,6 +10363,41 @@ class KalturaReportInputFilter extends KalturaReportInputBaseFilter
 	 */
 	public $hotspotIdIn = null;
 
+	/**
+	 * filter by crm id
+	 *
+	 * @var string
+	 */
+	public $crmIdIn = null;
+
+	/**
+	 * filter by playlist id
+	 *
+	 * @var string
+	 */
+	public $playlistIdIn = null;
+
+	/**
+	 * filter by domain
+	 *
+	 * @var string
+	 */
+	public $domainIn = null;
+
+	/**
+	 * filter by canonical url
+	 *
+	 * @var string
+	 */
+	public $canonicalUrlIn = null;
+
+	/**
+	 * filter by virtual event id
+	 *
+	 * @var string
+	 */
+	public $virtualEventIdIn = null;
+
 
 }
 
@@ -10343,6 +10515,13 @@ class KalturaReportExportParams extends KalturaObjectBase
 	 * @var string
 	 */
 	public $reportsItemsGroup = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $baseUrl = null;
 
 
 }
@@ -11569,6 +11748,13 @@ class KalturaStorageProfile extends KalturaObjectBase
 	 * @var string
 	 */
 	public $passPhrase = null;
+
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $port = null;
 
 	/**
 	 * 
@@ -15190,6 +15376,13 @@ class KalturaDeliveryProfileLivePackager extends KalturaDeliveryProfile
 	 */
 	public $livePackagerSigningDomain = null;
 
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $shouldRedirect = null;
+
 
 }
 
@@ -15220,14 +15413,14 @@ class KalturaDeliveryProfileRtmp extends KalturaDeliveryProfile
  * @package Kaltura
  * @subpackage Client
  */
-class KalturaDeliveryProfileVodPackagerPlayServer extends KalturaDeliveryProfile
+class KalturaDeliveryProfileVod extends KalturaDeliveryProfile
 {
 	/**
 	 * 
 	 *
 	 * @var bool
 	 */
-	public $adStitchingEnabled = null;
+	public $simuliveSupport = null;
 
 
 }
@@ -15953,6 +16146,15 @@ class KalturaEntryLiveStats extends KalturaLiveStats
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaEntryScheduledCondition extends KalturaCondition
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaEntryServerNodeBaseFilter extends KalturaFilter
 {
 	/**
@@ -16108,6 +16310,13 @@ class KalturaExportCsvJobData extends KalturaJobData
 	 * @var string
 	 */
 	public $outputPath = null;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $sharedOutputPath = null;
 
 
 }
@@ -16403,6 +16612,13 @@ class KalturaImportJobData extends KalturaJobData
 	 */
 	public $fileSize = null;
 
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $destFileSharedPath = null;
+
 
 }
 
@@ -16595,6 +16811,13 @@ class KalturaLiveEntryServerNode extends KalturaEntryServerNode
 	 * @var bool
 	 */
 	public $isPlayableUser = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaViewMode
+	 */
+	public $viewMode = null;
 
 
 }
@@ -16846,6 +17069,13 @@ class KalturaMailJobData extends KalturaJobData
 	 * @var string
 	 */
 	public $subjectParams = null;
+
+	/**
+	 * 
+	 *
+	 * @var KalturaDynamicEmailContents
+	 */
+	public $dynamicEmailContents;
 
 	/**
 	 * 
@@ -17608,6 +17838,13 @@ class KalturaReportExportJobData extends KalturaJobData
 	 * @var array of KalturaReportExportFile
 	 */
 	public $files;
+
+	/**
+	 * 
+	 *
+	 * @var string
+	 */
+	public $baseUrl = null;
 
 
 }
@@ -18656,6 +18893,15 @@ class KalturaUploadTokenListResponse extends KalturaListResponse
 	 */
 	public $objects;
 
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaUrlAuthenticationParamsCondition extends KalturaCondition
+{
 
 }
 
@@ -20450,6 +20696,13 @@ class KalturaConvertJobData extends KalturaConvartableJobData
 	 */
 	public $userCpu = null;
 
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $estimatedEffort = null;
+
 
 }
 
@@ -20567,14 +20820,14 @@ class KalturaDeliveryProfileLivePackagerHls extends KalturaDeliveryProfileLivePa
  * @package Kaltura
  * @subpackage Client
  */
-class KalturaDeliveryProfileVodPackagerHls extends KalturaDeliveryProfileVodPackagerPlayServer
+class KalturaDeliveryProfileVodPackagerPlayServer extends KalturaDeliveryProfileVod
 {
 	/**
 	 * 
 	 *
 	 * @var bool
 	 */
-	public $allowFairplayOffline = null;
+	public $adStitchingEnabled = null;
 
 
 }
@@ -21207,6 +21460,36 @@ class KalturaLiveParams extends KalturaFlavorParams
 	 * @var string
 	 */
 	public $streamSuffix = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+abstract class KalturaMappedObjectsCsvJobData extends KalturaExportCsvJobData
+{
+	/**
+	 * The metadata profile we should look the xpath in
+	 *
+	 * @var int
+	 */
+	public $metadataProfileId = null;
+
+	/**
+	 * The xpath to look in the metadataProfileId  and the wanted csv field name
+	 *
+	 * @var array of KalturaCsvAdditionalFieldInfo
+	 */
+	public $additionalFields;
+
+	/**
+	 * Array of header names and their mapped user fields
+	 *
+	 * @var array of KalturaKeyValue
+	 */
+	public $mappedFields;
 
 
 }
@@ -21877,6 +22160,13 @@ class KalturaStorageExportJobData extends KalturaStorageJobData
 	 */
 	public $externalUrl = null;
 
+	/**
+	 * 
+	 *
+	 * @var int
+	 */
+	public $port = null;
+
 
 }
 
@@ -22206,36 +22496,6 @@ abstract class KalturaUserRoleBaseFilter extends KalturaRelatedFilter
  * @package Kaltura
  * @subpackage Client
  */
-class KalturaUsersCsvJobData extends KalturaExportCsvJobData
-{
-	/**
-	 * The filter should return the list of users that need to be specified in the csv.
-	 *
-	 * @var KalturaUserFilter
-	 */
-	public $filter;
-
-	/**
-	 * The metadata profile we should look the xpath in
-	 *
-	 * @var int
-	 */
-	public $metadataProfileId = null;
-
-	/**
-	 * The xpath to look in the metadataProfileId  and the wanted csv field name
-	 *
-	 * @var array of KalturaCsvAdditionalFieldInfo
-	 */
-	public $additionalFields;
-
-
-}
-
-/**
- * @package Kaltura
- * @subpackage Client
- */
 class KalturaWidgetFilter extends KalturaWidgetBaseFilter
 {
 
@@ -22255,6 +22515,15 @@ class KalturaAccessControlFilter extends KalturaAccessControlBaseFilter
  * @subpackage Client
  */
 class KalturaAccessControlProfileFilter extends KalturaAccessControlProfileBaseFilter
+{
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaActionNameCondition extends KalturaRegexCondition
 {
 
 }
@@ -22663,6 +22932,22 @@ abstract class KalturaDeliveryProfileRtmpBaseFilter extends KalturaDeliveryProfi
  * @package Kaltura
  * @subpackage Client
  */
+class KalturaDeliveryProfileVodPackagerHls extends KalturaDeliveryProfileVodPackagerPlayServer
+{
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	public $allowFairplayOffline = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
 abstract class KalturaDeliveryServerNodeBaseFilter extends KalturaServerNodeFilter
 {
 
@@ -22696,6 +22981,22 @@ class KalturaDocumentEntryMatchAttributeCondition extends KalturaSearchMatchAttr
 	 * @var KalturaDocumentEntryMatchAttribute
 	 */
 	public $attribute = null;
+
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaEntriesCsvJobData extends KalturaMappedObjectsCsvJobData
+{
+	/**
+	 * The filter should return the list of entries that need to be specified in the csv.
+	 *
+	 * @var KalturaBaseEntryFilter
+	 */
+	public $filter;
 
 
 }
@@ -23294,6 +23595,22 @@ class KalturaUserLoginDataFilter extends KalturaUserLoginDataBaseFilter
  */
 class KalturaUserRoleFilter extends KalturaUserRoleBaseFilter
 {
+
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaUsersCsvJobData extends KalturaMappedObjectsCsvJobData
+{
+	/**
+	 * The filter should return the list of users that need to be specified in the csv.
+	 *
+	 * @var KalturaUserFilter
+	 */
+	public $filter;
+
 
 }
 

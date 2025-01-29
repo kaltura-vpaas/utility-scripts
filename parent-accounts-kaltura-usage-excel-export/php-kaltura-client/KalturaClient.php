@@ -6,10 +6,10 @@
 //                          |_|\_\__,_|_|\__|\_,_|_| \__,_|
 //
 // This file is part of the Kaltura Collaborative Media Suite which allows users
-// to do with audio, video, and animation what Wiki platfroms allow them to do with
+// to do with audio, video, and animation what Wiki platforms allow them to do with
 // text.
 //
-// Copyright (C) 2006-2020  Kaltura Inc.
+// Copyright (C) 2006-2021  Kaltura Inc.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -728,6 +728,40 @@ class KalturaBaseEntryService extends KalturaServiceBase
 	}
 
 	/**
+	 * Add batch job that sends an email with a link to download an updated CSV that contains list of entries
+	 * 
+	 * @param KalturaBaseEntryFilter $filter A filter used to exclude specific entries
+	 * @param int $metadataProfileId 
+	 * @param array $additionalFields 
+	 * @param array $mappedFields Mapping between field headline and its mapped value
+	 * @return string
+	 */
+	function exportToCsv(KalturaBaseEntryFilter $filter = null, $metadataProfileId = null, array $additionalFields = null, array $mappedFields = null)
+	{
+		$kparams = array();
+		if ($filter !== null)
+			$this->client->addParam($kparams, "filter", $filter->toParams());
+		$this->client->addParam($kparams, "metadataProfileId", $metadataProfileId);
+		if ($additionalFields !== null)
+			foreach($additionalFields as $index => $obj)
+			{
+				$this->client->addParam($kparams, "additionalFields:$index", $obj->toParams());
+			}
+		if ($mappedFields !== null)
+			foreach($mappedFields as $index => $obj)
+			{
+				$this->client->addParam($kparams, "mappedFields:$index", $obj->toParams());
+			}
+		$this->client->queueServiceActionCall("baseentry", "exportToCsv", $kparams);
+		if ($this->client->isMultiRequest())
+			return $this->client->getMultiRequestResult();
+		$resultObject = $this->client->doQueue();
+		$this->client->throwExceptionIfError($resultObject);
+		$this->client->validateObjectType($resultObject, "string");
+		return $resultObject;
+	}
+
+	/**
 	 * Flag inappropriate entry for moderation.
 	 * 
 	 * @param KalturaModerationFlag $moderationFlag 
@@ -948,6 +982,25 @@ class KalturaBaseEntryService extends KalturaServiceBase
 		$resultObject = $this->client->doQueue();
 		$this->client->throwExceptionIfError($resultObject);
 		$this->client->validateObjectType($resultObject, "null");
+	}
+
+	/**
+	 * This action serves HLS encrypted key if access control is validated
+	 * 
+	 * @param string $entryId 
+	 * @return file
+	 */
+	function servePlaybackKey($entryId)
+	{
+		if ($this->client->isMultiRequest())
+			throw new KalturaClientException("Action is not supported as part of multi-request.", KalturaClientException::ERROR_ACTION_IN_MULTIREQUEST);
+		
+		$kparams = array();
+		$this->client->addParam($kparams, "entryId", $entryId);
+		$this->client->queueServiceActionCall("baseentry", "servePlaybackKey", $kparams);
+		if(!$this->client->getDestinationPath() && !$this->client->getReturnServedResult())
+			return $this->client->getServeUrl();
+		return $this->client->doQueue();
 	}
 
 	/**
@@ -1476,6 +1529,29 @@ class KalturaCategoryService extends KalturaServiceBase
 		$resultObject = $this->client->doQueue();
 		$this->client->throwExceptionIfError($resultObject);
 		$this->client->validateObjectType($resultObject, "KalturaBulkUpload");
+		return $resultObject;
+	}
+
+	/**
+	 * Clone Category
+	 * 
+	 * @param int $categoryId 
+	 * @param int $fromPartnerId 
+	 * @param int $parentCategoryId 
+	 * @return KalturaCategory
+	 */
+	function cloneAction($categoryId, $fromPartnerId, $parentCategoryId = null)
+	{
+		$kparams = array();
+		$this->client->addParam($kparams, "categoryId", $categoryId);
+		$this->client->addParam($kparams, "fromPartnerId", $fromPartnerId);
+		$this->client->addParam($kparams, "parentCategoryId", $parentCategoryId);
+		$this->client->queueServiceActionCall("category", "clone", $kparams);
+		if ($this->client->isMultiRequest())
+			return $this->client->getMultiRequestResult();
+		$resultObject = $this->client->doQueue();
+		$this->client->throwExceptionIfError($resultObject);
+		$this->client->validateObjectType($resultObject, "KalturaCategory");
 		return $resultObject;
 	}
 
@@ -3409,7 +3485,7 @@ class KalturaGroupUserService extends KalturaServiceBase
 	 * @param bool $createNewGroups 
 	 * @return KalturaBulkUpload
 	 */
-	function sync($userId, $groupIds, $removeFromExistingGroups = true, $createNewGroups = true)
+	function sync($userId, $groupIds = null, $removeFromExistingGroups = true, $createNewGroups = true)
 	{
 		$kparams = array();
 		$this->client->addParam($kparams, "userId", $userId);
@@ -5792,6 +5868,31 @@ class KalturaPartnerService extends KalturaServiceBase
 	}
 
 	/**
+	 * Create a new Partner object
+	 * 
+	 * @param KalturaPartner $partner 
+	 * @param string $cmsPassword 
+	 * @param int $templatePartnerId 
+	 * @param bool $silent 
+	 * @return bool
+	 */
+	function registrationValidation(KalturaPartner $partner, $cmsPassword = "", $templatePartnerId = null, $silent = false)
+	{
+		$kparams = array();
+		$this->client->addParam($kparams, "partner", $partner->toParams());
+		$this->client->addParam($kparams, "cmsPassword", $cmsPassword);
+		$this->client->addParam($kparams, "templatePartnerId", $templatePartnerId);
+		$this->client->addParam($kparams, "silent", $silent);
+		$this->client->queueServiceActionCall("partner", "registrationValidation", $kparams);
+		if ($this->client->isMultiRequest())
+			return $this->client->getMultiRequestResult();
+		$resultObject = $this->client->doQueue();
+		$this->client->throwExceptionIfError($resultObject);
+		$resultObject = (bool) $resultObject;
+		return $resultObject;
+	}
+
+	/**
 	 * Update details and settings of an existing partner
 	 * 
 	 * @param KalturaPartner $partner 
@@ -6394,9 +6495,10 @@ class KalturaReportService extends KalturaServiceBase
 	 * 
 	 * @param int $id 
 	 * @param array $params 
+	 * @param string $excludedFields 
 	 * @return file
 	 */
-	function getCsv($id, array $params = null)
+	function getCsv($id, array $params = null, $excludedFields = null)
 	{
 		if ($this->client->isMultiRequest())
 			throw new KalturaClientException("Action is not supported as part of multi-request.", KalturaClientException::ERROR_ACTION_IN_MULTIREQUEST);
@@ -6408,6 +6510,7 @@ class KalturaReportService extends KalturaServiceBase
 			{
 				$this->client->addParam($kparams, "params:$index", $obj->toParams());
 			}
+		$this->client->addParam($kparams, "excludedFields", $excludedFields);
 		$this->client->queueServiceActionCall("report", "getCsv", $kparams);
 		if(!$this->client->getDestinationPath() && !$this->client->getReturnServedResult())
 			return $this->client->getServeUrl();
@@ -6416,12 +6519,14 @@ class KalturaReportService extends KalturaServiceBase
 
 	/**
 	 * Returns report CSV file executed by string params with the following convention: param1=value1;param2=value2
+	 excludedFields can be supplied comma separated
 	 * 
 	 * @param int $id 
 	 * @param string $params 
+	 * @param string $excludedFields 
 	 * @return file
 	 */
-	function getCsvFromStringParams($id, $params = null)
+	function getCsvFromStringParams($id, $params = null, $excludedFields = null)
 	{
 		if ($this->client->isMultiRequest())
 			throw new KalturaClientException("Action is not supported as part of multi-request.", KalturaClientException::ERROR_ACTION_IN_MULTIREQUEST);
@@ -6429,6 +6534,7 @@ class KalturaReportService extends KalturaServiceBase
 		$kparams = array();
 		$this->client->addParam($kparams, "id", $id);
 		$this->client->addParam($kparams, "params", $params);
+		$this->client->addParam($kparams, "excludedFields", $excludedFields);
 		$this->client->queueServiceActionCall("report", "getCsvFromStringParams", $kparams);
 		if(!$this->client->getDestinationPath() && !$this->client->getReturnServedResult())
 			return $this->client->getServeUrl();
@@ -9092,9 +9198,10 @@ class KalturaUserService extends KalturaServiceBase
 	 * @param KalturaUserFilter $filter A filter used to exclude specific types of users
 	 * @param int $metadataProfileId 
 	 * @param array $additionalFields 
+	 * @param array $mappedFields Mapping between field
 	 * @return string
 	 */
-	function exportToCsv(KalturaUserFilter $filter = null, $metadataProfileId = null, array $additionalFields = null)
+	function exportToCsv(KalturaUserFilter $filter = null, $metadataProfileId = null, array $additionalFields = null, array $mappedFields = null)
 	{
 		$kparams = array();
 		if ($filter !== null)
@@ -9104,6 +9211,11 @@ class KalturaUserService extends KalturaServiceBase
 			foreach($additionalFields as $index => $obj)
 			{
 				$this->client->addParam($kparams, "additionalFields:$index", $obj->toParams());
+			}
+		if ($mappedFields !== null)
+			foreach($mappedFields as $index => $obj)
+			{
+				$this->client->addParam($kparams, "mappedFields:$index", $obj->toParams());
 			}
 		$this->client->queueServiceActionCall("user", "exportToCsv", $kparams);
 		if ($this->client->isMultiRequest())
@@ -9291,6 +9403,25 @@ class KalturaUserService extends KalturaServiceBase
 		$this->client->throwExceptionIfError($resultObject);
 		$this->client->validateObjectType($resultObject, "string");
 		return $resultObject;
+	}
+
+	/**
+	 * Resets user login password
+	 * 
+	 * @param string $loginDataId The user's current email address that identified the user for login
+	 * @param string $newPassword The user's new password
+	 */
+	function loginDataResetPassword($loginDataId, $newPassword)
+	{
+		$kparams = array();
+		$this->client->addParam($kparams, "loginDataId", $loginDataId);
+		$this->client->addParam($kparams, "newPassword", $newPassword);
+		$this->client->queueServiceActionCall("user", "loginDataResetPassword", $kparams);
+		if ($this->client->isMultiRequest())
+			return $this->client->getMultiRequestResult();
+		$resultObject = $this->client->doQueue();
+		$this->client->throwExceptionIfError($resultObject);
+		$this->client->validateObjectType($resultObject, "null");
 	}
 
 	/**
@@ -9907,8 +10038,8 @@ class KalturaClient extends KalturaClientBase
 	{
 		parent::__construct($config);
 		
-		$this->setClientTag('php5:21-01-07');
-		$this->setApiVersion('16.14.0');
+		$this->setClientTag('php5:22-01-10');
+		$this->setApiVersion('17.18.0');
 		
 		$this->accessControlProfile = new KalturaAccessControlProfileService($this);
 		$this->accessControl = new KalturaAccessControlService($this);

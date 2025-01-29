@@ -6,10 +6,10 @@
 //                          |_|\_\__,_|_|\__|\_,_|_| \__,_|
 //
 // This file is part of the Kaltura Collaborative Media Suite which allows users
-// to do with audio, video, and animation what Wiki platfroms allow them to do with
+// to do with audio, video, and animation what Wiki platforms allow them to do with
 // text.
 //
-// Copyright (C) 2006-2020  Kaltura Inc.
+// Copyright (C) 2006-2021  Kaltura Inc.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -691,6 +691,7 @@ class KalturaPartnerStatus extends KalturaEnumBase
 	const ACTIVE = 1;
 	const BLOCKED = 2;
 	const FULL_BLOCK = 3;
+	const READ_ONLY = 4;
 }
 
 /**
@@ -1124,6 +1125,17 @@ class KalturaThumbCropType extends KalturaEnumBase
 	const CROP = 3;
 	const CROP_FROM_TOP = 4;
 	const RESIZE_WITH_FORCE = 5;
+}
+
+/**
+ * @package Kaltura
+ * @subpackage Client
+ */
+class KalturaTwoFactorAuthenticationMode extends KalturaEnumBase
+{
+	const ALL = 0;
+	const ADMIN_USERS_ONLY = 1;
+	const NON_ADMIN_USERS_ONLY = 2;
 }
 
 /**
@@ -1919,6 +1931,9 @@ class KalturaConditionType extends KalturaEnumBase
 	const ASSET_TYPE = "16";
 	const BOOLEAN = "17";
 	const HTTP_HEADER = "18";
+	const ENTRY_SCHEDULED = "19";
+	const ACTION_NAME = "20";
+	const URL_AUTH_PARAMS = "21";
 }
 
 /**
@@ -4673,6 +4688,7 @@ class KalturaReportInterval extends KalturaEnumBase
 	const MONTHS = "months";
 	const TEN_MINUTES = "ten_minutes";
 	const TEN_SECONDS = "ten_seconds";
+	const YEARS = "years";
 }
 
 /**
@@ -4750,6 +4766,7 @@ class KalturaReportType extends KalturaEnumBase
 	const INTERACTIVE_VIDEO_NODE_SWITCH_HOTSPOT_CLICKED_PERCENTILES = "57";
 	const TOP_CUSTOM_VAR2 = "58";
 	const TOP_CUSTOM_VAR3 = "59";
+	const SELF_SERVE_USAGE = "60";
 	const PARTNER_USAGE = "201";
 	const MAP_OVERLAY_COUNTRY_REALTIME = "10001";
 	const MAP_OVERLAY_REGION_REALTIME = "10002";
@@ -4788,6 +4805,7 @@ class KalturaReportType extends KalturaEnumBase
 	const PLAYBACK_RATE_VPAAS = "20020";
 	const PARTNER_USAGE_VPAAS = "20021";
 	const TOP_PLAYBACK_CONTEXT_VPAAS = "20022";
+	const SELF_SERVE_USAGE_VPAAS = "20023";
 	const QOE_OVERVIEW = "30001";
 	const QOE_EXPERIENCE = "30002";
 	const QOE_EXPERIENCE_PLATFORMS = "30003";
@@ -4863,6 +4881,8 @@ class KalturaReportType extends KalturaEnumBase
 	const TOP_USERS_WEBCAST = "40009";
 	const ENGAGEMENT_BREAKDOWN_WEBCAST = "40010";
 	const ENGAGMENT_TIMELINE_WEBCAST = "40011";
+	const ENGAGEMENT_TOOLS_WEBCAST = "40012";
+	const REACTIONS_BREAKDOWN_WEBCAST = "40013";
 }
 
 /**
@@ -5221,6 +5241,7 @@ class KalturaVideoCodec extends KalturaEnumBase
 	const APCN = "apcn";
 	const APCO = "apco";
 	const APCS = "apcs";
+	const AV1 = "av1";
 	const COPY = "copy";
 	const DNXHD = "dnxhd";
 	const DV = "dv";
