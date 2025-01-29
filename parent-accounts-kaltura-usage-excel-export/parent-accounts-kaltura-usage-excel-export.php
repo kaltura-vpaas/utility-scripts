@@ -20,7 +20,8 @@ class KalturaContentAnalytics implements IKalturaLogger
     const START_MONTH = '2022-03-01'; //The FIRST day of the month to BEGIN getting usage data from. Format: YYYY-MM-DD (e.g. 2000-01-25)
     const END_MONTH = '2022-09-30'; //The LAST day of the month to END the export of usage data on. Format: YYYY-MM-DD (e.g. 2000-01-25)
 
-    const GET_LVH_AND_DELIVERED_STREAMS = true;    const DEBUG_PRINTS = true; //Set to true if you'd like the script to output logging to the console (this is different from the KalturaLogger)
+    const GET_LVH_AND_DELIVERED_STREAMS = true;
+    const DEBUG_PRINTS = true; //Set to true if you'd like the script to output logging to the console (this is different from the KalturaLogger)
     const CYCLE_SIZES = 500; // Determines how many entries will be processed in each multi-request call - set it to whatever number works best for your server.
     const ERROR_LOG_FILE = 'kaltura_logger.txt'; //The name of the KalturaLogger export file
     // Defines a stop date for the entries iteration loop. Any time string supported by strtotime() can be passed. If this is set to null or -1, it will be ignored and the script will run through the entire library until it reaches the first created entry.
